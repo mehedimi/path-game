@@ -16,7 +16,7 @@
                         <div class="field">
                             <label for="name" class="label">Name</label>
                             <div class="control">
-                                <input id="name" name="name" class="input @error('name') is-danger @enderror" type="text" placeholder="Enter your full name">
+                                <input id="name" name="name" value="{{ old('name') }}" class="input @error('name') is-danger @enderror" type="text" placeholder="Enter your full name">
                             </div>
                             @error('name')
                                 <p class="help is-danger">{{ $message }}</p>
@@ -25,7 +25,7 @@
                         <div class="field">
                             <label for="email" class="label">Email</label>
                             <div class="control">
-                                <input id="email" name="email" class="input @error('email') is-danger @enderror" type="text" placeholder="Enter email">
+                                <input id="email" name="email" value="{{ old('email') }}" class="input @error('email') is-danger @enderror" type="text" placeholder="Enter email">
                             </div>
                             @error('email')
                                 <p class="help is-danger">{{ $message }}</p>

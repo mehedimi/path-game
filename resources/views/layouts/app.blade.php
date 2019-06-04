@@ -52,7 +52,7 @@
                             </div>
                         @else
                             <div class="navbar-end">
-                                <a href="#" class="navbar-item">
+                                <a href="/invite" class="navbar-item">
                                     Play
                                 </a>
                                 <div class="navbar-item has-dropdown is-hoverable">

@@ -11,7 +11,7 @@
             </div>
         </div>
         <div class="column is-4">
-            <div class="card mt-40">
+            <div class="card mt-40 is-rounded">
                 <header class="card-header">
                     <p class="card-header-title">
                         Conversation
@@ -40,8 +40,8 @@
                             <form action="">
                                 <div class="field">
                                     <div class="control has-icons-right">
-                                        <textarea class="textarea" rows="3" placeholder="Write your message"></textarea>
-                                        <span class="icon is-right send-button">
+                                        <textarea @input="typing" class="textarea" rows="3" placeholder="Write your message"></textarea>
+                                        <span @click="alert('message')" class="icon is-right send-button">
                                           <i class="fa fa-paper-plane fa-sm" ></i>
                                         </span>
                                     </div>
@@ -62,17 +62,31 @@
     import dots from '../dots'
 
     export default {
-
+        props: {
+            gameId: Number
+        },
         data(){
             return {
                 paths: paths,
                 selectedIndex: undefined,
-                dots: dots
+                dots: dots,
+                users: []
             }
         },
 
         mounted() {
-
+            window.Echo.join(`game.${this.gameId}`)
+                .here((users) => {
+                    this.users = users
+                }).joining((user) => {
+                    this.users.push(user)
+                }).leaving((user) => {
+                    this.users.splice(this.users.indexOf(user), 1)
+                }).listen('NewMessage', (e) => {
+                    console.log(e)
+                }).listenForWhisper('typing', (e) => {
+                    console.log(e)
+            })
         },
         computed: {
 
@@ -93,6 +107,11 @@
                 }
 
                 this.selectedIndex = index
+            },
+            typing(e){
+                window.Echo.private(`game.${this.gameId}`).whisper('typing', {
+
+                })
             }
         }
     }
@@ -213,10 +232,7 @@
             }
         }
         background-color: #ddd;
-
-        .input-box{
-
-        }
+        overflow: auto;
     }
 
 </style>

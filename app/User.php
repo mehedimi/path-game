@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -36,4 +37,16 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+
+
+    public function avatar($query = '?s=48')
+    {
+        return 'https://www.gravatar.com/avatar/' . md5(strtolower($this->email)) . $query;
+    }
+
+    public function scopeNotYou(Builder $builder)
+    {
+        return $builder->where('id', '<>', auth()->id());
+    }
 }

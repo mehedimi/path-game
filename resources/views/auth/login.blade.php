@@ -17,7 +17,7 @@
                             <div class="field">
                                 <label for="email" class="label">Email</label>
                                 <div class="control has-icons-left">
-                                    <input type="text" placeholder="Enter your registered email" name="email" class="input @error('email') is-danger @enderror">
+                                    <input id="email" type="text" value="{{ old('email') }}" placeholder="Enter your registered email" name="email" class="input @error('email') is-danger @enderror">
                                     <span class="icon is-small is-left">
                                         <i class="fa fa-envelope"></i>
                                     </span>

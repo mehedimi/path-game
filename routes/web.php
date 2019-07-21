@@ -19,6 +19,12 @@ Route::group(['middleware' => ['auth']], function (){
     Route::post('invite', 'GameController@sendInvitation');
 
     Route::get('users', 'UserController@index');
+
+    Route::get('games/{game}/moves', 'GameMoveController@index');
+    Route::put('games/{game}/moves/{gameMove}', 'GameMoveController@update');
+
+    Route::get('games/{game}/messages', 'MessageController@index');
+    Route::post('games/{game}/messages', 'MessageController@store');
 });
 
 

@@ -35,7 +35,7 @@
                         <div class="field">
                             <label for="password" class="label">Password</label>
                             <div class="control">
-                                <input id="password" name="password" class="input @error('password') is-danger @enderror" type="text" placeholder="Password">
+                                <input id="password" name="password" class="input @error('password') is-danger @enderror" type="password" placeholder="Password">
                             </div>
                             @error('password')
                             <p class="help is-danger">{{ $message }}</p>
@@ -45,7 +45,7 @@
                         <div class="field">
                             <label for="password_confirmation" class="label">Confirm Password</label>
                             <div class="control">
-                                <input id="password_confirmation" name="password_confirmation" class="input" type="text" placeholder="Password confirmation">
+                                <input id="password_confirmation" name="password_confirmation" class="input" type="password" placeholder="Password confirmation">
                             </div>
                         </div>
 

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\GameMoveEvent;
 use App\Game;
+use App\GameMove;
 use Illuminate\Http\Request;
 
 class GameController extends Controller
@@ -19,7 +21,18 @@ class GameController extends Controller
         ]);
 
         /** @var Game $game */
-        $game = Game::create([]);
+        $game = Game::create([
+            'turnner_id' => auth()->id()
+        ]);
+
+        for ($i = 0; $i < 9; $i++) {
+            if($i === 3) {
+                $i = 6;
+            }
+            $game->gameMoves()->create(
+                $this->defaultGameMoves(auth()->id(), $request->get('id'), $i)
+            );
+        }
 
         $game->users()->attach([auth()->id(), $request->get('id')]);
 
@@ -38,5 +51,13 @@ class GameController extends Controller
         $request->validate([
             'message' => 'required'
         ]);
+    }
+
+    protected function defaultGameMoves($userId, $opponentId, $index)
+    {
+        return [
+            'index' => $index,
+            'user_id' => ($index <= 2 ? $userId : $opponentId),
+        ];
     }
 }

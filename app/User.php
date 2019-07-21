@@ -29,6 +29,10 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
+    protected $appends = [
+        'avatar'
+    ];
+
     /**
      * The attributes that should be cast to native types.
      *
@@ -48,5 +52,15 @@ class User extends Authenticatable
     public function scopeNotYou(Builder $builder)
     {
         return $builder->where('id', '<>', auth()->id());
+    }
+
+    public function getAvatarAttribute()
+    {
+        return $this->avatar();
+    }
+
+    public function games()
+    {
+        return $this->belongsToMany(Game::class);
     }
 }

@@ -2,6 +2,6 @@
 
 @section('content')
     <div class="container">
-        <game-body :game-id="{{ $game->id }}"></game-body>
+        <game-body :game="{{ $game }}" :game-users="{{ $game->users }}" :me-id="{{ auth()->id() }}"></game-body>
     </div>
 @endsection

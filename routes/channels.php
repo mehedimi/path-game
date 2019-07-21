@@ -12,9 +12,14 @@
 */
 
 use App\User;
+use App\Game;
 use Illuminate\Support\Facades\Broadcast;
 
-Broadcast::channel('game.{user}', function ($luser, User $user) {
+Broadcast::channel(/**
+ * @param User $user
+ * @param Game $game
+ * @return array
+ */ 'game.{game}', function ($user, Game $game) {
     return [
         'id' => $user->id,
         'name' => $user->name

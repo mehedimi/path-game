@@ -1,8 +1,14 @@
 <template>
     <div class="columns">
         <div class="column is-8">
-            <div class="game-container" :class="{'play-as-opponent': !isPlayAsOpponent}">
-                <span class="line top-left-to-bottom-right"></span>
+            <div class="has-text-centered">
+                <h4>
+                    <span v-if="!gameData.winner_id" class="active-status" :class="isTimeToTurn ? 'active': 'inactive'"></span>
+                    {{ whoCanTurnDot }}</h4>
+            </div>
+
+            <div class="game-container" :class="{'play-as-opponent': !isPlayAsOpponent, 'is-loading': isLoading}">
+                <span class="line top-left-to-bottom-right activated"></span>
                 <span class="line top-right-to-bottom-left"></span>
                 <span class="line middle-left-to-middle-right"></span>
                 <span class="line middle-top-to-middle-bottom"></span>
@@ -10,15 +16,12 @@
                 <span v-for="(dot, index) in paths"
                       :class="{
                             selected: selectedIndex === index,
-                            'available-highlight': (availablePath.indexOf(index) !== -1 && !getDot(index))
+                            'available-highlight': (availablePath.indexOf(index) !== -1 && !getDot(index)),
+                            'dot-highlight': (getDot(index) ? (meId === getDot(index).user_id && selectedIndex === undefined && isTimeToTurn && !gameData.winner_id) : false)
                       }"
                       @click="pointClicked(dot, index)"
                       :style="styles(index)" class="top-left point">
                 </span>
-            </div>
-
-            <div class="has-text-centered">
-                <h4 class="mt-50">{{ whoCanTurnDot }}</h4>
             </div>
         </div>
         <div class="column is-4">
@@ -30,8 +33,9 @@
                 </header>
                 <div class="card-content p-0">
                     <div class="content">
+                        <audio src="/audio/new-message.mp3" muted ref="messageSound"></audio>
                         <div class="chat-box p-20">
-                            <ul class="chat-messages m-0">
+                            <ul class="chat-messages m-0" v-chat-scroll="{always: false, smooth: true}">
                                 <li v-for="message in messages" :class="meId === message.user_id ? 'send' : 'replies'" class="chat-message is-clearfix">
                                     <p>{{ message.message }}</p>
                                     <img :title="message.user.name" :src="message.user.avatar" :alt="message.user.name">
@@ -75,7 +79,8 @@
                 users: [],
                 gameData: {},
                 message: '',
-                messages: []
+                messages: [],
+                isLoading: false
             }
         },
         computed: {
@@ -128,7 +133,9 @@
                     this.users.splice(this.users.indexOf(u => u.id === user.id), 1);
                 }).listen('NewMessageEvent', (e) => {
                     this.messages.push(e.data.message);
-
+                if(e.data.message.user_id !== this.meId) {
+                        this.playNewMessageSound();
+                    }
                 }).listen('GameMoveEvent', ({ data }) => {
                     const prevDot = this.getDot(data.previousIndex);
                     this.selectedIndex = undefined;
@@ -190,10 +197,15 @@
                 const targetDot = this.getDot(index);
 
                 if (this.availablePath.indexOf(index) !== -1 && !targetDot) {
-
+                    this.isLoading = true;
                     window.axios.put(`/games/${this.gameData.id}/moves/${previousDot.id}`, {
                         index,
                         dot
+                    }).then(() => {
+
+
+
+                        this.isLoading = false;
                     });
                 }
             },
@@ -218,6 +230,12 @@
                 window.axios.get(`/games/${this.game.id}/messages`).then(({ data }) => {
                     this.messages = data;
                 });
+            },
+            playNewMessageSound() {
+                this.$refs.messageSound.play();
+            },
+            checkingIfPathMatch() {
+                
             }
         }
     }
@@ -231,34 +249,56 @@
         cursor: pointer;
     }
     .game-container {
+        &.is-loading{
+            &:after{
+                content: '';
+                position: absolute;
+                left: -10px;
+                top: -10px;
+                width: calc(100% + 20px);
+                height: calc(100% + 20px);
+                background-color: rgba(255, 255, 255, 0.5);
+                z-index: 9;
+            }
+
+            &:before{
+                content: 'Loading';
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                z-index: 99999;
+                font-size: 25px;
+                transform: translate(-50%);
+            }
+        }
+        &.is-loading.play-as-opponent {
+            &:before{
+                transform: rotate(180deg) translate(50%);
+            }
+        }
         top: 50px;
-        height: 600px;
-        width: 600px;
+        height: 500px;
+        width: 500px;
         background-color: #ddd;
         position: relative;
         margin: auto auto 50px;
         border: 10px solid #2c3e50;
         box-shadow: 0 0 8px 10px #ddd;
-        .point {
-            width: $circleRadius;
-            height: $circleRadius;
-            background-color: rgba(10, 10, 10, 0.4);
-            display: block;
-            position: absolute;
-            border-radius: 50%;
-            transition: transform 0.3s;
-        }
+        transition: 0.6s;
 
         .line{
             position: absolute;
             display: block;
             background-color: #2c3e50;
+            &.activated {
+                background-color: #0fb9b1;
+            }
         }
 
         .line.top-left-to-bottom-right{
             transform: rotate(-45deg);
             width: $line-width;
-            height: 822px;
+            height: 680px;
             left: -6px;
             top: 0;
             transform-origin: top;
@@ -267,7 +307,7 @@
         .line.top-right-to-bottom-left{
             transform: rotate(45deg);
             width: $line-width;
-            height: 822px;
+            height: 680px;
             transform-origin: top;
             top: 0;
             right: -6px;
@@ -288,6 +328,14 @@
             transform: translateX(-50%);
         }
         .point {
+            width: $circleRadius;
+            height: $circleRadius;
+            background-color: transparent;
+            display: block;
+            position: absolute;
+            border-radius: 50%;
+            transition: transform 0.3s;
+
             &.selected{
                 &:after {
                     content: '';
@@ -318,6 +366,22 @@
                     animation: pulse infinite 1s;
                 }
             }
+            &.dot-highlight{
+                &:after{
+                    content: '';
+                    width: 100%;
+                    height: 100%;
+                    left: 0;
+                    top: 0;
+                    position: absolute;
+                    background-color: transparent;
+                    border-radius: 50%;
+                    border: 3px solid transparent;
+                    border-top-color: #fff;
+                    border-bottom-color: #fff;
+                    animation: spiny 3s linear infinite;
+                }
+            }
 
         }
 
@@ -329,7 +393,7 @@
         .chat-messages{
             list-style-type: none;
             margin: 0;
-            max-height: 400px;
+            max-height: 350px;
             overflow: auto;
             .chat-message{
                 position: relative;
@@ -403,6 +467,15 @@
         100% {
             transform: scale(1.5);
             opacity: 0.1;
+        }
+    }
+
+    @keyframes spiny {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
         }
     }
 

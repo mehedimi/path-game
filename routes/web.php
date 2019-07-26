@@ -25,6 +25,8 @@ Route::group(['middleware' => ['auth']], function (){
 
     Route::get('games/{game}/messages', 'MessageController@index');
     Route::post('games/{game}/messages', 'MessageController@store');
+
+    Route::put('games/{game}/end', 'GameController@end');
 });
 
 

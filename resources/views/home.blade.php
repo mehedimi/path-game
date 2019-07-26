@@ -25,7 +25,7 @@
             @foreach($games as $game)
                 <tr>
                     <td>{{ $game->id }}</td>
-                    <td>{{ $game->id }}</td>
+                    <td>{{ $game->winner->name ?? "---" }}</td>
                     <td>{{ $game->created_at->diffForHumans() }}</td>
                     <td>{{ $game->updated_at->diffForHumans() }}</td>
                     <td>
@@ -35,5 +35,10 @@
             @endforeach
             </tbody>
         </table>
+        {!! $games->links('pagination.bulma') !!}
+
+        <div>
+            <invitation user-id="{{ auth()->id() }}"></invitation>
+        </div>
     </div>
 @endsection

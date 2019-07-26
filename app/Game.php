@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Game extends Model
 {
     protected $fillable = [
-        'turnner_id', 'is_end'
+        'turnner_id', 'line_index', 'winner_id'
     ];
 
     protected $casts = [
@@ -49,5 +49,10 @@ class Game extends Model
     public function messages()
     {
         return $this->hasMany(Message::class);
+    }
+
+    public function winner()
+    {
+        return $this->belongsTo(User::class);
     }
 }

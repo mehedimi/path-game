@@ -8,10 +8,10 @@
             </div>
 
             <div class="game-container" :class="{'play-as-opponent': !isPlayAsOpponent, 'is-loading': isLoading}">
-                <span class="line top-left-to-bottom-right activated"></span>
-                <span class="line top-right-to-bottom-left"></span>
-                <span class="line middle-left-to-middle-right"></span>
-                <span class="line middle-top-to-middle-bottom"></span>
+                <span class="line top-left-to-bottom-right" :class="{activated: gameData.line_index === 0}"></span>
+                <span class="line top-right-to-bottom-left" :class="{activated: gameData.line_index === 1}"></span>
+                <span class="line middle-left-to-middle-right" :class="{activated: gameData.line_index === 3}"></span>
+                <span class="line middle-top-to-middle-bottom" :class="{activated: gameData.line_index === 2}"></span>
 
                 <span v-for="(dot, index) in paths"
                       :class="{
@@ -34,6 +34,7 @@
                 <div class="card-content p-0">
                     <div class="content">
                         <audio src="/audio/new-message.mp3" muted ref="messageSound"></audio>
+                        <audio src="/audio/invite.mp3" muted ref="turnSound"></audio>
                         <div class="chat-box p-20">
                             <ul class="chat-messages m-0" v-chat-scroll="{always: false, smooth: true}">
                                 <li v-for="message in messages" :class="meId === message.user_id ? 'send' : 'replies'" class="chat-message is-clearfix">
@@ -80,7 +81,13 @@
                 gameData: {},
                 message: '',
                 messages: [],
-                isLoading: false
+                isLoading: false,
+                linePath: [
+                    [0, 4, 8],
+                    [6, 4, 2],
+                    [1, 4, 7],
+                    [3, 4, 5]
+                ]
             }
         },
         computed: {
@@ -107,6 +114,9 @@
                 return this.gameData.turnner_id === this.meId
             },
             whoCanTurnDot(){
+                if(this.gameData.winner_id) {
+                    return this.me.id === this.gameData.winner_id ? 'You win' : 'You Lose';
+                }
                 return this.isTimeToTurn ? 'Your Turn' : 'Opponent\'s Turn';
             },
             isPlayAsOpponent() {
@@ -116,7 +126,7 @@
                 return Boolean(this.users.find((u) => u.id === this.opponent.id));
             },
             isEnd() {
-                return Boolean(this.gameData.is_end);
+                return Boolean(this.gameData.winner_id);
             }
         },
 
@@ -141,13 +151,18 @@
                     this.selectedIndex = undefined;
                     prevDot.index = data.move.index;
                     this.gameData.turnner_id = data.turnner_id
+                    if(data.move.user_id !== this.me.id) {
+                        this.$refs.turnSound.play();
+                    }
+                }).listen('EndGameEvent', (data) => {
+                    this.gameData = data.game;
                 }).listenForWhisper('typing', (e) => {
                     console.log(e)
                 })
         },
         methods: {
             pointClicked(dot, index) {
-                if(!this.isTimeToTurn) {
+                if(!this.isTimeToTurn || this.isEnd) {
                     return;
                 }
                 const findDot = this.getDot(index);
@@ -202,10 +217,9 @@
                         index,
                         dot
                     }).then(() => {
-
-
-
-                        this.isLoading = false;
+                        this.checkingIfPathMatch().then(() => {
+                            this.isLoading = false;
+                        });
                     });
                 }
             },
@@ -235,7 +249,39 @@
                 this.$refs.messageSound.play();
             },
             checkingIfPathMatch() {
-                
+                return new Promise((resolve, reject) => {
+                    for(const lineIndex in this.linePath) {
+                        const line = this.linePath[lineIndex];
+
+                        const lineDots = line.filter((dotIndex) => {
+                            const dot = this.getDot(dotIndex);
+
+                            if(!dot) {
+                                return false;
+                            }
+
+                            return  dot.user_id === this.me.id
+                        });
+
+                        if(lineDots.length === 3) {
+                            this.finishGame(lineIndex).then(({ game }) => {
+                                resolve();
+                            });
+                            break;
+                        }
+                    }
+
+                    return resolve();
+                });
+            },
+            finishGame(index) {
+                return new Promise((resolve) => {
+                    window.axios.put(`/games/${this.gameData.id}/end`, {
+                        index
+                    }).then(({ data }) => {
+                        resolve(data);
+                    });
+                })
             }
         }
     }

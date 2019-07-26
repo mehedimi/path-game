@@ -16,6 +16,7 @@ class AddWinnerIdOnGamesTable extends Migration
         Schema::table('games', function (Blueprint $table) {
             $table->dropColumn('is_end');
             $table->unsignedBigInteger('winner_id')->nullable();
+            $table->tinyInteger('line_index')->nullable();
             $table->foreign('winner_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
@@ -29,7 +30,7 @@ class AddWinnerIdOnGamesTable extends Migration
     {
         Schema::table('games', function (Blueprint $table) {
             $table->dropForeign(['winner_id']);
-            $table->dropColumn('winner_id');
+            $table->dropColumn('winner_id', 'line_index');
             $table->boolean('is_end')->default(0);
         });
     }

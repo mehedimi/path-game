@@ -19,6 +19,7 @@ window.Vue = Vue;
 Vue.component('game-body', require('./components/GameBody.vue').default);
 Vue.component('nav-bar', require('./components/Navbar').default);
 Vue.component('invite', require('./components/Invite').default);
+Vue.component('invitation', require('./components/Invitation').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

@@ -25,3 +25,7 @@ Broadcast::channel(/**
         'name' => $user->name
     ];
 });
+
+Broadcast::channel('users.{user}', function ($u, $user){
+    return true;
+});

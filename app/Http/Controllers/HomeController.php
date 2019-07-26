@@ -30,7 +30,7 @@ class HomeController extends Controller
         $user = auth()->user();
 
         return view('home', [
-            'games' => $user->games()->latest()->paginate()
+            'games' => $user->games()->with('winner')->latest()->paginate()
         ]);
     }
 }

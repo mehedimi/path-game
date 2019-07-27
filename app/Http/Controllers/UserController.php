@@ -21,6 +21,7 @@ class UserController extends Controller
 
         if($request->ajax() && $request->filled('name')){
             $user->where('name', 'like', "%{$request->get('name')}%")
+                ->orWhere('email', 'like', "%{$request->get('name')}%")
             ->notYou();
 
             return UserResource::collection($user->get());

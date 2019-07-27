@@ -10,5 +10,10 @@
                 <a href="/invite" class="button is-large mt-20 is-primary">Play Now</a>
             </div>
         </div>
+        @if(auth()->check())
+            <div>
+                <invitation user-id="{{ auth()->id() }}"></invitation>
+            </div>
+        @endif
     </div>
 @endsection

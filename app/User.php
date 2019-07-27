@@ -44,7 +44,7 @@ class User extends Authenticatable
 
 
 
-    public function avatar($query = '?s=48')
+    public function avatar($query = '?s=48&d=mp')
     {
         return 'https://www.gravatar.com/avatar/' . md5(strtolower($this->email)) . $query;
     }

@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-    <div class="content">
+    <div class="content mt-20">
         <div class="columns is-centered">
             <div class="column is-half">
                 <div class="card">

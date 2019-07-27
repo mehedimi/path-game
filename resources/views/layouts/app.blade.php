@@ -3,11 +3,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <meta name="author" content="Mehedi Hasan">
+    <meta name="keywords" content="path-game, game, online game, best online game, multi player online game">
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'Path Game') }} - By Mehedi Hasan</title>
 
     <!-- Scripts -->
     <script src="{{ mix('/js/app.js') }}" defer></script>
@@ -82,6 +83,13 @@
         <main class="py-4">
             @yield('content')
         </main>
+        <footer class="footer mt-50">
+            <div class="content has-text-centered">
+                <p>
+                   &copy; 2019 <strong>Path Game</strong> by <a href="https://fb.com/mehedimi">Mehedi Hasan</a>. This game is totally free and always be.
+                </p>
+            </div>
+        </footer>
     </div>
 </body>
 </html>

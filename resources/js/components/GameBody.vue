@@ -2,7 +2,7 @@
     <div class="columns">
         <div class="column is-8">
             <div class="has-text-centered">
-                <h4>
+                <h4 class="mt-10">
                     <span v-if="!gameData.winner_id" class="active-status" :class="isTimeToTurn ? 'active': 'inactive'"></span>
                     {{ whoCanTurnDot }}</h4>
             </div>
@@ -23,6 +23,9 @@
                       :style="styles(index)" class="top-left point">
                 </span>
             </div>
+            <div class="has-text-centered">
+                <h4 v-html="players"></h4>
+            </div>
         </div>
         <div class="column is-4">
             <div class="card mt-40 is-rounded">
@@ -41,11 +44,15 @@
                                     <p>{{ message.message }}</p>
                                     <img :title="message.user.name" :src="message.user.avatar" :alt="message.user.name">
                                 </li>
+                                <li v-if="isTyping" class="send chat-message is-clearfix typing">
+                                    <p><i>{{ opponent.name }} is Typing...</i></p>
+                                    <img :title="opponent.name" :src="opponent.avatar" :alt="opponent.name">
+                                </li>
                             </ul>
                             <form>
                                 <div class="field">
                                     <div class="control has-icons-right">
-                                        <textarea v-model="message" @keyup.enter="sendMessage" class="textarea" rows="3" placeholder="Write your message"></textarea>
+                                        <textarea v-model="message" @keyup="typing" @keyup.enter="sendMessage" class="textarea" rows="3" placeholder="Write your message"></textarea>
                                         <span @click="alert('message')" class="icon is-right send-button">
                                           <i class="fa fa-paper-plane fa-sm" ></i>
                                         </span>
@@ -64,6 +71,7 @@
 <script>
 
     import paths from '../paths'
+    import debounce from 'lodash.debounce'
     // import dots from '../dots'
 
     export default {
@@ -87,7 +95,8 @@
                     [6, 4, 2],
                     [1, 4, 7],
                     [3, 4, 5]
-                ]
+                ],
+                isTyping: false,
             }
         },
         computed: {
@@ -127,6 +136,11 @@
             },
             isEnd() {
                 return Boolean(this.gameData.winner_id);
+            },
+            players() {
+                return this.gameUsers.map((u) => {
+                    return u.name;
+                }).join(' <b>vs</b> ');
             }
         },
 
@@ -157,7 +171,14 @@
                 }).listen('EndGameEvent', (data) => {
                     this.gameData = data.game;
                 }).listenForWhisper('typing', (e) => {
-                    console.log(e)
+
+                    if (this.isTyping) {
+                        return;
+                    }
+                    this.isTyping = true;
+                    setTimeout(() => {
+                        this.isTyping = false;
+                    }, 1000);
                 })
         },
         methods: {
@@ -197,11 +218,11 @@
 
                 return this.paths[index].styles
             },
-            typing(e){
+            typing: debounce(function () {
                 this.channel.whisper('typing', {
-
-                })
-            },
+                    name: this.me.name
+                });
+            }, 500),
             getDot(index) {
                 return this.dots.find((d) => {
                     return d.index === index
@@ -322,7 +343,7 @@
                 transform: rotate(180deg) translate(50%);
             }
         }
-        top: 50px;
+        top: 15px;
         height: 500px;
         width: 500px;
         background-color: #ddd;
@@ -482,6 +503,9 @@
                         right: 0;
                         bottom: 0;
                     }
+                }
+                &.typing {
+                    opacity: 0.8;
                 }
             }
         }

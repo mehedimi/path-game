@@ -22,7 +22,7 @@
     "dependencies": {
         "bulma": "^0.7.5",
         "laravel-echo": "^1.5.3",
-        "lodash": "^4.17.11",
+        "lodash.debounce": "^4.0.8",
         "pusher-js": "^4.4.0",
         "speech-js": "^0.1.1",
         "sweetalert": "^2.1.2",

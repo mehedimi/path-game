@@ -86,7 +86,7 @@
         <footer class="footer mt-50">
             <div class="content has-text-centered">
                 <p>
-                   &copy; 2019 <strong>Path Game</strong> by <a href="https://fb.com/mehedimi">Mehedi Hasan</a>. This game is totally free and always be.
+                   &copy; {!! date('Y') !!} <strong>Path Game</strong> by <a href="https://fb.com/mehedimi">Group C, 40B</a>. This game is totally free and always be.
                 </p>
             </div>
         </footer>
